@@ -25,14 +25,14 @@ and uses confluent zookeeper, broker, schema registry and rest proxy.
 
 ### Viewing the data
 - Run `docker-compose exec broker bash` to access the kafka container
-- Run `kafka-console-consumer --bootstrap-server broker:9092 --topic postgres.public.movies --from-beginning`
+- Run `kafka-console-consumer --bootstrap-server broker:9092 --topic postgres.public.transaction --from-beginning`
 
 
 ## Schema Registry
 
 ### Viewing the schema
-- Run `curl -X GET http://localhost:8081/subjects/postgres.public.movies/versions/1`
+- Run `curl -X GET http://localhost:8081/subjects/postgres.public.transaction/versions/1`
 
 
 ### Registering the schema
-- Run `curl -X POST -H "Content-Type: application/json" -d @schema.json http://localhost:8081/subjects/postgres.public.movies/versions`
+- Run `curl -X POST -H "Content-Type: application/json" -d @schema.json http://localhost:8081/subjects/postgres.public.transaction/versions`
