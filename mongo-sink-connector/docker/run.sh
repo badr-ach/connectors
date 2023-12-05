@@ -108,10 +108,10 @@ curl -X POST -H "Content-Type: application/json" --data '
    "config": {
      "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
      "tasks.max":"1",
-     "topics":"pageviews",
+     "topics":"public.transaction",
      "connection.uri":"mongodb://mongo1:27017,mongo2:27017,mongo3:27017",
      "database":"test",
-     "collection":"pageviews",
+     "collection":"transaction",
      "key.converter": "org.apache.kafka.connect.storage.StringConverter",
      "value.converter": "org.apache.kafka.connect.json.JsonConverter",
      "value.converter.schemas.enable": "false"
