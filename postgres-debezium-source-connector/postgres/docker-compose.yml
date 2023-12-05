@@ -15,6 +15,7 @@ services:
       start_period: 10s
       retries: 20
       interval: 10s
+
   broker:
     image: confluentinc/cp-kafka:7.3.1
     hostname: broker
