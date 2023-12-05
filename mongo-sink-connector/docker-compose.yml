@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3.6"
 
 services:
   zookeeper:
@@ -12,19 +12,13 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    healthcheck:
-      test: echo srvr | nc zookeeper 2181 || exit 1
-      start_period: 10s
-      retries: 20
-      interval: 10s
 
   broker:
     image: confluentinc/cp-kafka:7.3.1
     hostname: broker
     container_name: broker
     depends_on:
-      zookeeper:
-        condition: service_healthy
+      - zookeeper
     ports:
       - "29092:29092"
       - "9092:9092"
@@ -49,20 +43,14 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_JMX_PORT: 9101
       KAFKA_JMX_HOSTNAME: localhost
-    healthcheck:
-      test: nc -z localhost 9092 || exit -1
-      start_period: 15s
-      interval: 5s
-      timeout: 10s
-      retries: 10
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.3.1
     hostname: schema-registry
     container_name: schema-registry
     depends_on:
-      broker:
-        condition: service_healthy
+      - zookeeper
+      - broker
     ports:
       - "8081:8081"
     networks:
@@ -72,12 +60,6 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:29092
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-
-    healthcheck:
-      start_period: 10s
-      interval: 10s
-      retries: 20
-      test: curl --user superUser:superUser --fail --silent --insecure http://localhost:8081/subjects --output /dev/null || exit 1
 
   connect:
     image: confluentinc/kafka-connect-datagen:latest # Dockerfile loads cp-kafka-connect:5.3.0
@@ -187,8 +169,9 @@ services:
   rest-proxy:
     image: confluentinc/cp-kafka-rest:7.3.1
     depends_on:
-      broker:
-        condition: service_healthy
+      - zookeeper
+      - broker
+      - schema-registry
     ports:
       - "8082:8082"
     hostname: rest-proxy
