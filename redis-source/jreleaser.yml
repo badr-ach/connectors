@@ -1,0 +1,66 @@
+project:
+  name: redis-kafka-connect
+  description: Kafka Connector (Source and Sink) by Redis
+  longDescription: Kafka Connect source and sink connectors for Redis
+  links:
+    homepage: https://github.com/redis-field-engineering/redis-kafka-connect
+  authors:
+    - Julien Ruaux
+  license: Apache-2.0
+  java:
+    groupId: com.redis
+    version: 11
+    multiProject: true
+  inceptionYear: 2021
+  tags:
+    - 'kafka'
+    - 'connect'
+    - 'redis'
+
+release:
+  github:
+    overwrite: true
+    sign: true
+    issues:
+      enabled: true
+    changelog:
+      formatted: ALWAYS
+      preset: conventional-commits
+      contributors:
+        format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
+      labelers:
+        - label: 'dependencies'
+          title: 'regex:^(?:deps(?:\(.*\))?!?):\s.*'
+          order: 130
+      categories:
+        - title: 'Merge'
+          labels:
+            - 'merge_pull'
+            - 'merge_branch'
+        - title: '⚙️  Dependencies'
+          key: 'dependencies'
+          order: 80
+          labels:
+            - 'dependencies'
+      hide:
+        categories:
+          - 'Merge'
+      replacers:
+        - search: 'deps: '
+
+signing:
+  active: ALWAYS
+  armored: true
+
+announce:
+  slack:
+    active: RELEASE
+    channel: '#field-engineering-announcements'
+    message: '🔗 Redis Kafka Connect {{projectVersion}} has been released! {{releaseNotesUrl}}'
+
+distributions:
+  redis-redis-kafka-connect:
+    type: binary
+    artifacts:
+      - path: core/redis-kafka-connect/build/confluent/{{distributionName}}-{{projectVersion}}.zip
+        transform: '{{distributionName}}-{{projectEffectiveVersion}}.zip'
