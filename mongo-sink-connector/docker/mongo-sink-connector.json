@@ -1,8 +1,8 @@
-{  "name": "mongo-sink",
+{  "name": "mongo-sink-connector",
    "config": {
      "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
      "tasks.max":"1",
-     "topics":"public.transaction",
+     "topics":"postgres.public.transaction",
      "connection.uri":"mongodb://mongo1:27017,mongo2:27017,mongo3:27017",
      "database":"test",
      "collection":"transaction",
