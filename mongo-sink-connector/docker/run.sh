@@ -101,36 +101,12 @@ curl -X POST -H "Content-Type: application/json" --data '
 }}' http://localhost:8083/connectors -w "\n"
 
 sleep 5
-
-echo -e "\nAdding MongoDB Kafka Sink Connector for the 'pageviews' topic into the 'test.pageviews' collection:"
-curl -X POST -H "Content-Type: application/json" --data '
-  {"name": "mongo-sink",
-   "config": {
-     "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
-     "tasks.max":"1",
-     "topics":"public.transaction",
-     "connection.uri":"mongodb://mongo1:27017,mongo2:27017,mongo3:27017",
-     "database":"test",
-     "collection":"transaction",
-     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
-     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-     "value.converter.schemas.enable": "false"
-}}' http://localhost:8083/connectors -w "\n"
+echo -e "\n Adding Postgres Kafka Source Connector for the 'public.transaction' table:"
+curl -X POST -H "Content-Type: application/json" -d @connector.json http://localhost:8084/connectors -w "\n"
 
 sleep 2
-echo -e "\nAdding MongoDB Kafka Source Connector for the 'test.pageviews' collection:"
-curl -X POST -H "Content-Type: application/json" --data '
-  {"name": "mongo-source",
-   "config": {
-     "tasks.max":"1",
-     "connector.class":"com.mongodb.kafka.connect.MongoSourceConnector",
-     "connection.uri":"mongodb://mongo1:27017,mongo2:27017,mongo3:27017",
-     "key.converter": "org.apache.kafka.connect.json.JsonConverter",
-     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-     "topic.prefix":"mongo",
-     "database":"test",
-     "collection":"pageviews"
-}}' http://localhost:8083/connectors -w "\n"
+echo -e "\nAdding MongoDB Kafka Sink Connector for the 'test.transaction' collection:"
+curl -X POST -H "Content-Type: application/json" -d @mongo-sink-connector.json http://localhost:8083/connectors -w "\n"
 
 sleep 2
 echo -e "\nKafka Connectors: \n"
