@@ -17,6 +17,12 @@ unzip -d ./build/confluent ./build/confluent/*.zip
 find ./build/confluent -maxdepth 1 -type d ! -wholename "./build/confluent" -exec mv {} ./build/confluent/kafka-connect-mongodb \;
 )
 
+echo "Building the Redis Kafka Connector"
+(
+cd ../redis-kafka
+docker build -t jaredpetersen/kafka-connect-redis:latest .
+)
+
 echo "Starting docker ."
 docker-compose up -d --build
 
@@ -102,15 +108,30 @@ curl -X POST -H "Content-Type: application/json" --data '
 
 sleep 5
 echo -e "\n Adding Postgres Kafka Source Connector for the 'public.transaction' table:"
-curl -X POST -H "Content-Type: application/json" -d @connector.json http://localhost:8084/connectors -w "\n"
+curl -X POST -H "Content-Type: application/json" -d @postgres-source-connector.json http://localhost:8084/connectors -w "\n"
+
+sleep 2
+echo -e "\nAdding Keys Source Connector for keys 'mykey:*':"
+curl -X POST -H "Content-Type: application/json" -d @redis-source-connector.json http://localhost:8085/connectors -w "\n"
+
+sleep 2
+echo -e "\nAdding Keys Source Connector for keys 'mykey:*':"
+curl -X POST -H "Content-Type: application/json" -d @redis-source-connector-2.json http://localhost:8085/connectors -w "\n"
 
 sleep 2
 echo -e "\nAdding MongoDB Kafka Sink Connector for the 'test.transaction' collection:"
 curl -X POST -H "Content-Type: application/json" -d @mongo-sink-connector.json http://localhost:8083/connectors -w "\n"
 
+echo -e "\nAdding MongoDB Kafka Sink Connector for the 'test.redis-transaction' collection:"
+curl -X POST -H "Content-Type: application/json" -d @mongo-sink-connector-2.json http://localhost:8083/connectors -w "\n"
+
+
+
 sleep 2
 echo -e "\nKafka Connectors: \n"
 curl -X GET "http://localhost:8083/connectors/" -w "\n"
+curl -X GET "http://localhost:8084/connectors/" -w "\n"
+curl -X GET "http://localhost:8085/connectors/" -w "\n"
 
 echo "Looking at data in 'db.pageviews':"
 docker-compose exec mongo1 /usr/bin/mongo --eval 'db.pageviews.find()'

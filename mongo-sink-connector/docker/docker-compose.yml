@@ -268,6 +268,56 @@ services:
     networks:
       - localnet
 
+  redis-connect:
+    image: jaredpetersen/kafka-connect-redis:latest
+    hostname: redis-connect
+    container_name: redis-connect
+    depends_on:
+      - broker
+      - schema-registry
+    ports:
+      - "8085:8083"
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: 'broker:29092'
+      CONNECT_REST_ADVERTISED_HOST_NAME: redis-connect
+      CONNECT_GROUP_ID: compose-redis-connect-group
+      CONNECT_CONFIG_STORAGE_TOPIC: docker-redis-connect-configs
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
+      CONNECT_OFFSET_STORAGE_TOPIC: docker-redis-connect-offsets
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_TOPIC: docker-redis-connect-status
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_KEY_CONVERTER: org.apache.kafka.redis-connect.storage.StringConverter
+      CONNECT_VALUE_CONVERTER: io.confluent.redis-connect.avro.AvroConverter
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      # CLASSPATH required due to CC-2422
+      CLASSPATH: /usr/share/java/monitoring-interceptors/monitoring-interceptors-7.2.0.jar
+      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
+      CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
+    networks:
+      - localnet
+
+  redis:
+    image: redis/redis-stack-server
+    hostname: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - localnet
+
+  redis-2:
+    image: redis/redis-stack-server
+    hostname: redis-2
+    container_name: redis-2
+    ports:
+      - "6380:6379"
+    networks:
+      - localnet
+
 networks:
   localnet:
     attachable: true

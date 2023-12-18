@@ -1,4 +1,4 @@
-{  "name": "mongo-sink-connector",
+{  "name": "mongo-postgres-sink-connector",
    "config": {
      "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
      "tasks.max":"1",
