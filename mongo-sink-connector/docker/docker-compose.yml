@@ -347,7 +347,7 @@ services:
     ports:
       - 28083:28083
     links:
-      - kafka
+      - broker
       - zookeeper
       - mysql
     environment:
