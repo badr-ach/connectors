@@ -107,8 +107,11 @@ curl -X POST -H "Content-Type: application/json" --data '
 }}' http://localhost:8083/connectors -w "\n"
 
 sleep 5
-echo -e "\n Adding Postgres Kafka Source Connector for the 'public.transaction' table:"
-curl -X POST -H "Content-Type: application/json" -d @postgres-source-connector.json http://localhost:8084/connectors -w "\n"
+# echo -e "\n Adding Postgres Kafka Source Connector for the 'public.transaction' table:"
+# curl -X POST -H "Content-Type: application/json" -d @postgres-source-connector.json http://localhost:8084/connectors -w "\n"
+
+echo -e "\n Adding Mysql Kafka Source Connector for the 'public.transaction' table:"
+curl -X POST -H "Content-Type: application/json" -d @mysql-source-connector.json http://localhost:8084/connectors -w "\n"
 
 sleep 2
 echo -e "\nAdding Keys Source Connector for keys 'mykey:*':"

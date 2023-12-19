@@ -47,7 +47,7 @@ services:
     hostname: debezium
     depends_on:
       - broker
-      - postgres
+      - mysql
     networks:
       - localnet
     ports:
@@ -253,20 +253,20 @@ services:
       - "27019:27017"
     restart: always
   
-  postgres:
-    image: postgres:latest
-    restart: always
-    container_name: postgres
-    hostname: postgres
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: postgresuser
-      POSTGRES_PASSWORD: postgrespass
-      POSTGRES_DB: transaction-db
-    command: ["postgres", "-c", "wal_level=logical"]
-    networks:
-      - localnet
+  # postgres:
+  #   image: postgres:latest
+  #   restart: always
+  #   container_name: postgres
+  #   hostname: postgres
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     POSTGRES_USER: postgresuser
+  #     POSTGRES_PASSWORD: postgrespass
+  #     POSTGRES_DB: transaction-db
+  #   command: ["postgres", "-c", "wal_level=logical"]
+  #   networks:
+  #     - localnet
 
   redis-connect:
     image: jaredpetersen/kafka-connect-redis:latest
@@ -315,6 +315,34 @@ services:
     container_name: redis-2
     ports:
       - "6380:6379"
+    networks:
+      - localnet
+
+  # kafka-connect-ui:
+  #   image: landoop/kafka-connect-ui:0.9.7
+  #   container_name: kafka-connect-ui
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - kafka-connect
+  #   ports:
+  #     - "8086:8000"
+  #   environment:
+  #     CONNECT_URL: http://kafka-connect:8083
+  #     PROXY: "true"
+  #   healthcheck:
+  #     test: "wget --quiet --tries=1 --spider http://localhost:8000 || exit 1"
+
+  mysql:
+    image: mysql:8.1.0
+    container_name: mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=transactiondb
+    healthcheck:
+      test: "mysqladmin ping -u root -p secret"
     networks:
       - localnet
 
