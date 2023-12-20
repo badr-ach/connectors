@@ -47,7 +47,7 @@ services:
     hostname: debezium
     depends_on:
       - broker
-      - mysql
+      - postgres
     networks:
       - localnet
     ports:
