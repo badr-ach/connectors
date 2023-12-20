@@ -8,7 +8,7 @@ services:
     ports:
       - "2181:2181"
     networks:
-      - localnet
+      - spring-newbank-network
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -24,7 +24,7 @@ services:
       - "9092:9092"
       - "9101:9101"
     networks:
-      - localnet
+      - spring-newbank-network
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -49,7 +49,7 @@ services:
       - broker
       - postgres
     networks:
-      - localnet
+      - spring-newbank-network
     ports:
       - "8084:8083"
     environment:
@@ -72,7 +72,7 @@ services:
     ports:
       - "8081:8081"
     networks:
-      - localnet
+      - spring-newbank-network
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
@@ -93,7 +93,7 @@ services:
     ports:
       - "8083:8083"
     networks:
-      - localnet
+      - spring-newbank-network
     environment:
       CONNECT_BOOTSTRAP_SERVERS: 'broker:29092'
       CONNECT_REST_ADVERTISED_HOST_NAME: connect
@@ -137,7 +137,7 @@ services:
     ports:
       - "9021:9021"
     networks:
-      - localnet
+      - spring-newbank-network
     environment:
       CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker:29092'
       CONTROL_CENTER_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -161,7 +161,7 @@ services:
     ports:
       - "8088:8088"
     networks:
-      - localnet
+      - spring-newbank-network
     environment:
       KSQL_CONFIG_DIR: "/etc/ksql"
       KSQL_LOG4J_OPTS: "-Dlog4j.configuration=file:/etc/ksql/log4j-rolling.properties"
@@ -195,7 +195,7 @@ services:
     hostname: rest-proxy
     container_name: rest-proxy
     networks:
-      - localnet
+      - spring-newbank-network
     environment:
       KAFKA_REST_HOST_NAME: rest-proxy
       KAFKA_REST_BOOTSTRAP_SERVERS: 'broker:29092'
@@ -208,7 +208,7 @@ services:
     ports:
       - "8000:8000"
     networks:
-      - localnet
+      - spring-newbank-network
     environment:
       KAFKA_REST_PROXY_URL: "http://rest-proxy:8082/"
       PROXY: "true"
@@ -226,7 +226,7 @@ services:
     volumes:
       - rs1:/data/db
     networks:
-      - localnet
+      - spring-newbank-network
     ports:
       - "27017:27017"
     restart: always
@@ -237,7 +237,7 @@ services:
     volumes:
       - rs2:/data/db
     networks:
-      - localnet
+      - spring-newbank-network
     ports:
       - "27018:27017"
     restart: always
@@ -248,7 +248,7 @@ services:
     volumes:
       - rs3:/data/db
     networks:
-      - localnet
+      - spring-newbank-network
     ports:
       - "27019:27017"
     restart: always
@@ -266,7 +266,7 @@ services:
       POSTGRES_DB: transaction-db
     command: ["postgres", "-c", "wal_level=logical"]
     networks:
-      - localnet
+      - spring-newbank-network
 
   redis-connect:
     image: jaredpetersen/kafka-connect-redis:latest
@@ -298,7 +298,7 @@ services:
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
     networks:
-      - localnet
+      - spring-newbank-network
 
   redis:
     image: redis/redis-stack-server
@@ -307,7 +307,7 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - localnet
+      - spring-newbank-network
 
   redis-2:
     image: redis/redis-stack-server
@@ -316,7 +316,7 @@ services:
     ports:
       - "6380:6379"
     networks:
-      - localnet
+      - spring-newbank-network
 
   # kafka-connect-ui:
   #   image: landoop/kafka-connect-ui:0.9.7
@@ -340,7 +340,7 @@ services:
   #     MYSQL_ROOT_PASSWORD: test
   #   image: mysql:8.0
   #   networks:
-  #     - localnet
+  #     - spring-newbank-network
   
   # kafka-connector-mysql:
   #   image: confluentinc/cp-kafka-connect:latest
@@ -370,11 +370,11 @@ services:
   #   volumes:
   #     - $PWD/jars:/etc/kafka-connect/jars
   #   networks:
-  #     - localnet
+  #     - spring-newbank-network
 
 networks:
-  localnet:
-    attachable: true
+  spring-newbank-network:
+    external: true
 
 volumes:
   rs1:
