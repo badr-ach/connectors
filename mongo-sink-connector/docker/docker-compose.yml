@@ -239,35 +239,12 @@ services:
   mongo1:
     image: "mongo:4.0-xenial"
     container_name: mongo1
-    command: --replSet rs0 --smallfiles --oplogSize 128
     volumes:
       - rs1:/data/db
     networks:
       - spring-newbank-network
     ports:
       - "27017:27017"
-    restart: always
-  mongo2:
-    image: "mongo:4.0-xenial"
-    container_name: mongo2
-    command: --replSet rs0 --smallfiles --oplogSize 128
-    volumes:
-      - rs2:/data/db
-    networks:
-      - spring-newbank-network
-    ports:
-      - "27018:27017"
-    restart: always
-  mongo3:
-    image: "mongo:4.0-xenial"
-    container_name: mongo3
-    command: --replSet rs0 --smallfiles --oplogSize 128
-    volumes:
-      - rs3:/data/db
-    networks:
-      - spring-newbank-network
-    ports:
-      - "27019:27017"
     restart: always
   
   postgres:
