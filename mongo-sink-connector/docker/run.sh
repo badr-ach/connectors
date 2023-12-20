@@ -66,7 +66,7 @@ function test_systems_available {
 
 test_systems_available 8082
 test_systems_available 8083
-test_systems_available 28083
+test_systems_available 8084
 test_systems_available 8085
 
 trap clean_up EXIT
@@ -92,11 +92,11 @@ curl -X GET "http://localhost:8082/topics" -w "\n"
 echo -e "\nKafka Connectors:"
 curl -X GET "http://localhost:8083/connectors/" -w "\n"
 
-echo -e "\nCreating kafka topics for mysql connector:"
-docker-compose run --rm kafka kafka-topics --create --topic quickstart-avro-offsets --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:32181 --config cleanup.policy=compact
-docker-compose run --rm kafka kafka-topics --create --topic quickstart-avro-config --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:32181 --config cleanup.policy=compact
-docker-compose run --rm kafka kafka-topics --create --topic quickstart-avro-status --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:32181 --config cleanup.policy=compact
-sleep 5
+# echo -e "\nCreating kafka topics for mysql connector:"
+# docker-compose run --rm kafka kafka-topics --create --topic quickstart-avro-offsets --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:32181 --config cleanup.policy=compact
+# docker-compose run --rm kafka kafka-topics --create --topic quickstart-avro-config --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:32181 --config cleanup.policy=compact
+# docker-compose run --rm kafka kafka-topics --create --topic quickstart-avro-status --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:32181 --config cleanup.policy=compact
+# sleep 5
 
 echo -e "\nAdding datagen pageviews:"
 curl -X POST -H "Content-Type: application/json" --data '
@@ -115,25 +115,25 @@ curl -X POST -H "Content-Type: application/json" --data '
 }}' http://localhost:8083/connectors -w "\n"
 
 sleep 5
-# echo -e "\n Adding Postgres Kafka Source Connector for the 'public.transaction' table:"
-# curl -X POST -H "Content-Type: application/json" -d @postgres-source-connector.json http://localhost:8084/connectors -w "\n"
+echo -e "\n Adding Postgres Kafka Source Connector for the 'public.transaction' table:"
+curl -X POST -H "Content-Type: application/json" -d @postgres-source-connector.json http://localhost:8084/connectors -w "\n"
 
-echo -e "\n Adding Mysql Kafka Source Connector for the 'public.transaction' table:"
-# curl -X POST -H "Content-Type: application/json" -d @mysql-source-connector.json http://localhost:8084/connectors -w "\n"
-curl -X POST -H "Content-Type: application/json" --data '
-  { "name": "quickstart-jdbc-source", 
-    "config": { 
-      "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector", 
-      "tasks.max": 1, 
-      "connection.url": "jdbc:mysql://mysql:3306/connect_test", 
-      "connection.user": "root", 
-      "connection.password": "test", 
-      "mode": "incrementing", 
-      "incrementing.column.name": "id", 
-      "timestamp.column.name": "modified", 
-      "topic.prefix": "quickstart-jdbc-", 
-      "poll.interval.ms": 1000 
-    }}' http://localhost:28083/connectors -w "\n"
+# echo -e "\n Adding Mysql Kafka Source Connector for the 'public.transaction' table:"
+# # curl -X POST -H "Content-Type: application/json" -d @mysql-source-connector.json http://localhost:8084/connectors -w "\n"
+# curl -X POST -H "Content-Type: application/json" --data '
+#   { "name": "quickstart-jdbc-source", 
+#     "config": { 
+#       "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector", 
+#       "tasks.max": 1, 
+#       "connection.url": "jdbc:mysql://mysql:3306/connect_test", 
+#       "connection.user": "root", 
+#       "connection.password": "test", 
+#       "mode": "incrementing", 
+#       "incrementing.column.name": "id", 
+#       "timestamp.column.name": "modified", 
+#       "topic.prefix": "quickstart-jdbc-", 
+#       "poll.interval.ms": 1000 
+#     }}' http://localhost:28083/connectors -w "\n"
 
 sleep 2
 echo -e "\nAdding Keys Source Connector for keys 'mykey:*':"
