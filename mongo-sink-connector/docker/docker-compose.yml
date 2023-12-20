@@ -13,10 +13,10 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
-  broker:
+  kafka-service:
     image: confluentinc/cp-kafka:7.3.1
-    hostname: broker
-    container_name: broker
+    hostname: kafka-service
+    container_name: kafka-service
     depends_on:
       - zookeeper
     ports:
@@ -29,7 +29,7 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092,PLAINTEXT_HOST://kafka-service:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://localhost:9092,PLAINTEXT_HOST://kafka-service:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -43,18 +43,18 @@ services:
   init-kafka:
     image: confluentinc/cp-kafka:7.3.1
     depends_on:
-      - broker
+      - kafka-service
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
       # blocks until kafka is reachable
-      kafka-topics --bootstrap-server broker:29092 --list
+      kafka-topics --bootstrap-server kafka-service:9092 --list
 
       echo -e 'Creating kafka topics'
-      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic topic-transactions --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka-service:9092 --create --if-not-exists --topic topic-transactions --replication-factor 1 --partitions 1
 
       echo -e 'Successfully created the following topics:'
-      kafka-topics --bootstrap-server broker:29092 --list
+      kafka-topics --bootstrap-server kafka-service:9092 --list
       "
 
   debezium:
@@ -63,14 +63,14 @@ services:
     container_name: debezium
     hostname: debezium
     depends_on:
-      - broker
+      - kafka-service
       - postgres
     networks:
       - spring-newbank-network
     ports:
       - "8084:8083"
     environment:
-      BOOTSTRAP_SERVERS: broker:29092
+      BOOTSTRAP_SERVERS: kafka-service:9092
       GROUP_ID: 1
       CONFIG_STORAGE_TOPIC: connect_configs
       STATUS_STORAGE_TOPIC: connect_statuses
@@ -85,7 +85,7 @@ services:
     container_name: schema-registry
     depends_on:
       - zookeeper
-      - broker
+      - kafka-service
     ports:
       - "8081:8081"
     networks:
@@ -93,7 +93,7 @@ services:
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:29092
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:9092
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
   connect:
@@ -105,14 +105,14 @@ services:
     container_name: connect
     depends_on:
       - zookeeper
-      - broker
+      - kafka-service
       - schema-registry
     ports:
       - "8083:8083"
     networks:
       - spring-newbank-network
     environment:
-      CONNECT_BOOTSTRAP_SERVERS: 'broker:29092'
+      CONNECT_BOOTSTRAP_SERVERS: 'kafka-service:9092'
       CONNECT_REST_ADVERTISED_HOST_NAME: connect
       CONNECT_REST_PORT: 8083
       CONNECT_GROUP_ID: compose-connect-group
@@ -156,7 +156,7 @@ services:
     networks:
       - spring-newbank-network
     environment:
-      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker:29092'
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker:9092'
       CONTROL_CENTER_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       CONTROL_CENTER_CONNECT_CLUSTER: 'connect:8083'
       CONTROL_CENTER_KSQL_URL: "http://ksql-server:8088"
@@ -173,7 +173,7 @@ services:
     hostname: ksql-server
     container_name: ksql-server
     depends_on:
-      - broker
+      - kafka-service
       - connect
     ports:
       - "8088:8088"
@@ -182,7 +182,7 @@ services:
     environment:
       KSQL_CONFIG_DIR: "/etc/ksql"
       KSQL_LOG4J_OPTS: "-Dlog4j.configuration=file:/etc/ksql/log4j-rolling.properties"
-      KSQL_BOOTSTRAP_SERVERS: "broker:29092"
+      KSQL_BOOTSTRAP_SERVERS: "kafka-service:9092"
       KSQL_HOST_NAME: ksql-server
       KSQL_APPLICATION_ID: "cp-all-in-one"
       KSQL_LISTENERS: "http://0.0.0.0:8088"
@@ -195,7 +195,7 @@ services:
     image: confluentinc/cp-ksql-cli:5.3.0
     container_name: ksql-cli
     depends_on:
-      - broker
+      - kafka-service
       - connect
       - ksql-server
     entrypoint: /bin/sh
@@ -205,7 +205,7 @@ services:
     image: confluentinc/cp-kafka-rest:7.3.1
     depends_on:
       - zookeeper
-      - broker
+      - kafka-service
       - schema-registry
     ports:
       - "8082:8082"
@@ -215,7 +215,7 @@ services:
       - spring-newbank-network
     environment:
       KAFKA_REST_HOST_NAME: rest-proxy
-      KAFKA_REST_BOOTSTRAP_SERVERS: 'broker:29092'
+      KAFKA_REST_BOOTSTRAP_SERVERS: 'kafka-service:9092'
       KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
       KAFKA_REST_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
 
@@ -231,7 +231,7 @@ services:
       PROXY: "true"
     depends_on:
       - zookeeper
-      - broker
+      - kafka-service
       - schema-registry
       - rest-proxy
 
@@ -290,12 +290,12 @@ services:
     hostname: redis-connect
     container_name: redis-connect
     depends_on:
-      - broker
+      - kafka-service
       - schema-registry
     ports:
       - "8085:8083"
     environment:
-      CONNECT_BOOTSTRAP_SERVERS: 'broker:29092'
+      CONNECT_BOOTSTRAP_SERVERS: 'kafka-service:9092'
       CONNECT_REST_ADVERTISED_HOST_NAME: redis-connect
       CONNECT_GROUP_ID: compose-redis-connect-group
       CONNECT_CONFIG_STORAGE_TOPIC: docker-redis-connect-configs
