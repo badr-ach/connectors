@@ -93,7 +93,7 @@ services:
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:9092
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka-service:9092
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
   connect:
@@ -147,7 +147,7 @@ services:
     container_name: control-center
     depends_on:
       - zookeeper
-      - broker
+      - kafka-service
       - schema-registry
       - connect
       - ksql-server
@@ -156,7 +156,7 @@ services:
     networks:
       - spring-newbank-network
     environment:
-      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker:9092'
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'kafka-service:9092'
       CONTROL_CENTER_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       CONTROL_CENTER_CONNECT_CLUSTER: 'connect:8083'
       CONTROL_CENTER_KSQL_URL: "http://ksql-server:8088"
@@ -364,11 +364,11 @@ services:
   #   ports:
   #     - 28083:28083
   #   links:
-  #     - broker
+  #     - kafka-service
   #     - zookeeper
   #     - mysql
   #   environment:
-  #     CONNECT_BOOTSTRAP_SERVERS: broker:29092
+  #     CONNECT_BOOTSTRAP_SERVERS: kafka-service:29092
   #     CONNECT_REST_PORT: 28083
   #     CONNECT_GROUP_ID: "quickstart-avro"
   #     CONNECT_CONFIG_STORAGE_TOPIC: "quickstart-avro-config"
