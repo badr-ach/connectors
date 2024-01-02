@@ -77,6 +77,40 @@ echo -e "\nKafka Connectors:"
 curl -X GET "http://localhost:8083/connectors/" -w "\n"
 curl -X GET "http://localhost:8084/connectors/" -w "\n"
 
+sleep 5
+echo -e "\n Adding Postgres Kafka Source Connector for the 'public.transaction' table:"
+curl -X POST -H "Content-Type: application/json" --data '
+{
+  "name": "transaction-db-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+
+        "key.converter.schemas.enable": "false",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "false",
+
+    "plugin.name": "pgoutput",
+    "tasks.max": "1",
+    "database.hostname": "postgres",
+    "database.port": "5432",
+    "database.user": "postgresuser",
+    "database.password": "postgrespass",
+    "database.dbname": "transaction-db",
+    "database.server.name": "postgres",
+    "table.include.list": "public.transaction",
+    "database.history.kafka.bootstrap.servers": "broker:29092",
+    "database.history.kafka.topic": "schema-changes.transaction",
+    "topic.prefix": "postgres",
+    "topic.creation.enable": "true",
+    "topic.creation.default.replication.factor": "1",
+    "topic.creation.default.partitions": "1",
+    "topic.creation.default.cleanup.policy": "delete",
+    "topic.creation.default.retention.ms": "604800000"
+  }
+}
+' http://localhost:8085/connectors -w "\n"
+
 sleep 2
 echo -e "\nAdding Keys Source Connector for keys 'mykey:*':"
 curl -X POST -H "Content-Type: application/json" --data '
@@ -108,6 +142,23 @@ curl -X POST -H "Content-Type: application/json" --data '
 }' http://localhost:8084/connectors -w "\n"
 
 sleep 2
+
+echo -e "\nAdding MongoDB Kafka Sink Connector for the 'test.transaction' collection:"
+curl -X POST -H "Content-Type: application/json" --data '
+{  "name": "mongo-postgres-sink-connector",
+   "config": {
+     "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
+     "tasks.max":"1",
+     "topics":"postgres.public.transaction",
+     "connection.uri":"mongodb://mongo1:27017",
+     "database":"test",
+     "collection":"transaction",
+     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+     "value.converter.schemas.enable": "false",
+     "key.converter.schemas.enable": "false"
+   }
+}' http://localhost:8084/connectors -w "\n"
 
 echo -e "\nKafka Connectors: \n"
 curl -X GET "http://localhost:8083/connectors/" -w "\n"

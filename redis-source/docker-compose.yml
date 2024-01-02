@@ -224,6 +224,44 @@ services:
       - "27017:27017"
     restart: always
 
+
+  debezium:
+    image: debezium/connect:latest
+    restart: always
+    container_name: debezium
+    hostname: debezium
+    depends_on:
+      - broker
+      - postgres
+    networks:
+      - spring-newbank-network
+    ports:
+      - "8085:8083"
+    environment:
+      BOOTSTRAP_SERVERS: broker:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect_configs
+      STATUS_STORAGE_TOPIC: connect_statuses
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      ENABLE_DEBEZIUM_SCRIPTING: "true"
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    container_name: postgres
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgresuser
+      POSTGRES_PASSWORD: postgrespass
+      POSTGRES_DB: transaction-db
+    command: ["postgres", "-c", "wal_level=logical"]
+    networks:
+      - spring-newbank-network
+
 networks:
   spring-newbank-network:
     external: true
