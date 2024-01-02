@@ -77,22 +77,6 @@ echo -e "\nKafka Connectors:"
 curl -X GET "http://localhost:8083/connectors/" -w "\n"
 curl -X GET "http://localhost:8084/connectors/" -w "\n"
 
-curl -X POST -H "Content-Type: application/json" --data '
-  { "name": "datagen-pageviews",
-    "config": {
-      "connector.class": "io.confluent.kafka.connect.datagen.DatagenConnector",
-      "kafka.topic": "pageviews",
-      "quickstart": "pageviews",
-      "key.converter": "org.apache.kafka.connect.json.JsonConverter",
-      "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-      "value.converter.schemas.enable": "false",
-      "producer.interceptor.classes": "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor",
-      "max.interval": 200,
-      "iterations": 10000000,
-      "tasks.max": "1"
-}}' http://localhost:8083/connectors -w "\n"
-sleep 5
-
 sleep 2
 echo -e "\nAdding Keys Source Connector for keys 'mykey:*':"
 curl -X POST -H "Content-Type: application/json" --data '
@@ -119,9 +103,7 @@ curl -X POST -H "Content-Type: application/json" --data '
      "connection.uri":"mongodb://mongo1:27017",
      "database":"test",
      "collection":"transaction",
-     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
-     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-     "value.converter.schemas.enable": "false"
+     "key.converter": "org.apache.kafka.connect.storage.StringConverter"
    }
 }' http://localhost:8084/connectors -w "\n"
 
@@ -129,6 +111,7 @@ sleep 2
 
 echo -e "\nKafka Connectors: \n"
 curl -X GET "http://localhost:8083/connectors/" -w "\n"
+curl -X GET "http://localhost:8084/connectors/" -w "\n"
 
 echo "Enabling keyspace notifications on Redis database:"
 docker compose exec redis /opt/redis-stack/bin/redis-cli config set notify-keyspace-events KEA
