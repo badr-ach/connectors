@@ -172,7 +172,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    hostname: mongo-connect
+    hostname: connect
     container_name: mongo-connect
     depends_on:
       - zookeeper
@@ -184,9 +184,9 @@ services:
       - spring-newbank-network
     environment:
       CONNECT_BOOTSTRAP_SERVERS: 'broker:29092'
-      CONNECT_REST_ADVERTISED_HOST_NAME: mongo-connect
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect
       CONNECT_REST_PORT: 8084
-      CONNECT_GROUP_ID: compose-mongo-onnect-group
+      CONNECT_GROUP_ID: compose-mongo-connect-group
       CONNECT_CONFIG_STORAGE_TOPIC: docker-mongo-connect-configs
       CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
       CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
