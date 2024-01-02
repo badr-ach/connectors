@@ -31,6 +31,8 @@ function clean_up {
     curl --output /dev/null -X DELETE http://localhost:8083/connectors/datagen-pageviews || true
     curl --output /dev/null -X DELETE http://localhost:8083/connectors/redis-sink || true
     curl --output /dev/null -X DELETE http://localhost:8083/connectors/redis-source || true
+    curl --output /dev/null -X DELETE http://localhost:8083/connectors/redis-keys-source || true
+    curl --output /dev/null -X DELETE http://localhost:8084/connectors/mongo-redis-sink-connector || true
     docker compose down
     if [ -z "$1" ]
     then
