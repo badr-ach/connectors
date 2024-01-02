@@ -226,3 +226,6 @@ services:
 networks:
   spring-newbank-network:
     external: true
+
+volumes:
+  rs1:
