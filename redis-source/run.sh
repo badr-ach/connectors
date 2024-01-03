@@ -71,6 +71,20 @@ test_systems_available 8085
 
 trap clean_up EXIT
 
+echo -e "\nConfiguring the MongoDB ReplicaSet.\n"
+docker-compose exec mongo1 /usr/bin/mongo --eval '''if (rs.status()["ok"] == 0) {
+    rsconf = {   
+    	_id : "rs0",  
+	protocolVersion: NumberLong(1), 
+	members : [     
+		{ _id: 0, host: "localhost:27017" }   
+	] 
+    }
+    rs.initiate(rsconf);
+}
+
+rs.conf();'''
+
 echo -e "\nKafka Topics:"
 curl -X GET "http://localhost:8082/topics" -w "\n"
 
