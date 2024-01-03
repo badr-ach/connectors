@@ -128,7 +128,7 @@ curl -X POST -H "Content-Type: application/json" --data '
             "connector.class": "io.github.jaredpetersen.kafkaconnectredis.source.RedisSourceConnector",
             "tasks.max": "1",
             "topic": "redis.events",
-            "redis.uri": "redis://gateway-db1:6378",
+            "redis.uri": "redis://gateway-db1:6379",
             "redis.channels": "__key*__:*",
             "redis.channels.pattern.enabled": true
         }
@@ -137,7 +137,7 @@ curl -X POST -H "Content-Type: application/json" --data '
 sleep 2
 echo -e "\nAdding Keys Source Connector for keys 'mykey:*' for gateway-db2 :"
 curl -X POST -H "Content-Type: application/json" --data '
-{   "name": "redis-keys-source",
+{   "name": "redis-keys-source-2",
             "config": {
             "connector.class": "io.github.jaredpetersen.kafkaconnectredis.source.RedisSourceConnector",
             "tasks.max": "1",
@@ -189,7 +189,8 @@ curl -X GET "http://localhost:8083/connectors/" -w "\n"
 curl -X GET "http://localhost:8084/connectors/" -w "\n"
 
 echo "Enabling keyspace notifications on Redis database:"
-docker compose exec redis /opt/redis-stack/bin/redis-cli config set notify-keyspace-events KEA
+docker compose exec gateway-db1 /opt/redis-stack/bin/redis-cli config set notify-keyspace-events KEA
+docker compose exec gateway-db2 /opt/redis-stack/bin/redis-cli config set notify-keyspace-events KEA
 
 sleep 2
 echo -e '''

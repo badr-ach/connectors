@@ -3,7 +3,7 @@ package com.mongodb.kafka.connect;
 public final class Versions {
   public static final String NAME = "mongo-kafka";
 
-  public static final String VERSION = "397b0e-dirty";
+  public static final String VERSION = "ee96fa-dirty";
 
   private Versions() {}
 }
