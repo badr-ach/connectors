@@ -67,6 +67,7 @@ function test_systems_available {
 test_systems_available 8082
 test_systems_available 8083
 test_systems_available 8084
+test_systems_available 8085
 
 trap clean_up EXIT
 
@@ -84,12 +85,6 @@ curl -X POST -H "Content-Type: application/json" --data '
   "name": "transaction-db-connector",
   "config": {
     "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
-    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
-
-        "key.converter.schemas.enable": "false",
-        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-        "value.converter.schemas.enable": "false",
-
     "plugin.name": "pgoutput",
     "tasks.max": "1",
     "database.hostname": "postgres",
@@ -155,8 +150,7 @@ curl -X POST -H "Content-Type: application/json" --data '
      "collection":"transaction",
      "key.converter": "org.apache.kafka.connect.storage.StringConverter",
      "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-     "value.converter.schemas.enable": "false",
-     "key.converter.schemas.enable": "false"
+     "value.converter.schemas.enable": "false"
    }
 }' http://localhost:8084/connectors -w "\n"
 
