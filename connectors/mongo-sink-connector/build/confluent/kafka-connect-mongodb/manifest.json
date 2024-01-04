@@ -32,5 +32,5 @@
   }],
   "component_types" : [ "sink", "source" ],
   "requirements": ["MongoDB server for Sink and a MongoDB replicaSet or Sharded replicaSet for Source"],
-  "release_date": "2024-01-03"
+  "release_date": "2024-01-04"
 }
