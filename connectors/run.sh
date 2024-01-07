@@ -192,7 +192,9 @@ echo "Enabling keyspace notifications on Redis database:"
 docker compose exec gateway-db1 /opt/redis-stack/bin/redis-cli config set notify-keyspace-events KEA
 docker compose exec gateway-db2 /opt/redis-stack/bin/redis-cli config set notify-keyspace-events KEA
 
-sleep 2
+echo "Starting the Mongo Trigger:"
+python3 trigger/complexe.py 
+
 echo -e '''
 
 Use <ctrl>-c to quit'''
