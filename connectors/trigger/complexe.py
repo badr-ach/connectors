@@ -25,7 +25,8 @@ def main():
                                 'transactionId': parts[0],
                                 'transaction': parts[1] if len(parts) > 1 else ''
                             }
-                            rtransaction_col.insert_one(new_doc)
+                            if parts[0] != 'del':
+                                rtransaction_col.insert_one(new_doc)
                     else:
                         # Handle documents with more attributes
                         if 'payload' in doc and 'after' in doc['payload']:
