@@ -19,7 +19,7 @@ find ./build/confluent -maxdepth 1 -type d ! -wholename "./build/confluent" -exe
 
 echo "Building the Redis Kafka Connector"
 (
-cd ./mongo-sink-connector/redis-kafka
+cd ./redis-kafka
 docker build -t jaredpetersen/kafka-connect-redis:latest .
 )
 
